@@ -1,25 +1,21 @@
-/*
 package com.smartcode.wallet.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @RequiredArgsConstructor
 public class SpringSecurityConfiguration {
-    private final UserDetailsService userDetailsService;
-    private final JwtTokenFilter jwtTokenFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -30,7 +26,6 @@ public class SpringSecurityConfiguration {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .httpBasic().disable()
                 .csrf().disable()
                 .cors().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -38,26 +33,18 @@ public class SpringSecurityConfiguration {
                 .authorizeHttpRequests()
                 .anyRequest().authenticated()
                 .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(new JwtAuthEntryPoint())
-                .and()
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                .httpBasic();
         return http.build();
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public UserDetailsService users(){
+        UserDetails user = User.builder()
+                .username("ecommerceClient")
+                .password(passwordEncoder().encode("password"))
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(user);
     }
 
 }
-*/
